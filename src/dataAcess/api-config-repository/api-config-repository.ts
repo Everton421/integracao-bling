@@ -26,7 +26,7 @@ export class ApiConfigRepository{
             async buscaConfig():Promise<param[]>{
                 return new Promise( async (resolve, reject)=>{
                     const sql =
-                    ` SELECT * FROM ${database_api}.config;`
+                    ` SELECT * FROM ${database_api}.config_bling;`
                     await conn.query( sql, ( err, result )=>{
                         if(err){
                             reject(err)
@@ -42,7 +42,7 @@ export class ApiConfigRepository{
      async atualizaDados( json:param ):Promise<OkPacket>{
         return new Promise ( async (resolve,reject ) =>{
             let BaseSql = `
-                UPDATE ${database_api}.config set   
+                UPDATE ${database_api}.config_bling set   
             `
                 let conditions=[]
                 let values=[]
