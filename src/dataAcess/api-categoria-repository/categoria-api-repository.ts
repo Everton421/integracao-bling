@@ -1,6 +1,10 @@
 import { conn_api, database_api } from "../../database/databaseConfig";
 import { DateService } from "../../Services/dateService/date-service";
 
+type categoryIntegration = {
+    Id_bling:number, descricao:string, codigo_sistema:number, data_envio:string
+}
+
 export class CategoriaApiRepository{
     private dateService = new DateService();
 
@@ -25,7 +29,7 @@ export class CategoriaApiRepository{
         })
     }
     
-        async buscaCategoriaApi( codigo:number):Promise<[ { Id_bling:number, descricao:string, codigo_sistema:number, data_envio:string}]>{
+        async buscaCategoriaApi( codigo:number):Promise<categoryIntegration[]>{
         return new Promise( async (resolve,reject)=>{
             const sql = 
             `SELECT * FROM ${database_api}.categorias WHERE codigo_sistema = ? ;

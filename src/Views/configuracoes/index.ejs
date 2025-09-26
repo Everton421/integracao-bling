@@ -47,12 +47,19 @@
 
     <div class="container-fluid">
         <div class="row">
-            <%# Se tiver uma sidebar: <nav id="sidebarMenu"
-                class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                <!-- Conteúdo da Sidebar -->
-                </nav>
-                %>
+         
+   <%- include('../components/sidebar', { activePage: 'home' }) %>
+            <div  class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Compartilhar (opcional)</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Exportar (opcional)</button>
+                        </div>
+                    </div>
+                </div>
               <form action="/ajusteConfig" method="POST" 
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+              
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
                     <div class="col">
                         <div class="card h-100">
@@ -119,9 +126,12 @@
                                         </label>
                                 </div>
 
-                                <label class="form-check-label" for="checkDefault mt-3">
-                                    codigo do vendedor quer será vinculado aos pedidos vindos do bling.
-                                </label>
+                              
+                                  <li style="margin-top: 10px; margin-left: 10px;">  
+                                    <label class="form-check-label"  ="checkDefault">
+                                     codigo do vendedor quer será vinculado aos pedidos vindos do bling.
+                                    </label>
+                                  </li>
                                 <div class="input-group mb-3 mt-3">
                                     <input type="text" class="form-control" placeholder="ex.:9"  
                                         aria-describedby="basic-addon1"
@@ -165,6 +175,22 @@
                                     <label class="form-check-label" for="checkDefault">
                                         não desejo enviar o saldo de estoque para no bling.
                                     </label>
+
+
+                                  <li> 
+                                    <label class="form-check-label" style="margin-top: 10px;"  >
+                                        Setor vinculado.
+                                    </label>
+                                  </li>
+                                     <select class="form-select mt-2" aria-label="Default select example" name="setor"
+                                         <% if( dados.enviar_estoque === 0 ){%> desabled  <% } %>
+                                     >
+                                            <% if( setores && setores.length > 0 ){ setores.forEach((i)=>{ %> 
+                                              <option value="<%=i.CODIGO%>"
+                                                    <% if( dados.setor === i.CODIGO ){ %> selected <% } %> 
+                                              checked  >  <%=i.NOME %></option>
+                                            <% })} %>
+                                      </select>
                                 </div>
                             </div>
                         </div>
@@ -217,12 +243,9 @@
                         </div>
                     </div>
                 </div>
-
-
-             
-           
-           <button type="submit" class="btn btn-primary ">gravar</button>
+                   <button type="submit" class="btn btn-primary ">gravar</button>
             </form>
+            </main>
 
         </div>
     </div>

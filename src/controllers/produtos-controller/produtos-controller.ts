@@ -85,7 +85,7 @@ export class ProdutoController {
                         if(envPreco > 0 ){
 
                             let arrPreco = await this.produto.buscaPreco(codigoSistema, tabela_preco)
-                                 let resultEnvPreco = await this.syncPrice.postPrice(produtoSincronizado[0].Id_bling, arrPreco[0].PRECO );
+                                 let resultEnvPreco = await this.syncPrice.postPrice(produtoSincronizado[0].Id_bling, produtoSincronizado[0].codigo_sistema, tabela_preco );
                              if( resultEnvPreco && resultEnvPreco.msg){
                                          msgRetorno = resultEnvPreco.msg;
                                       }
@@ -120,7 +120,8 @@ export class ProdutoController {
                                     if( envPreco > 0 ){
                                     if (resultVinculo?.produto !== null) {
                                         let arrPreco = await this.produto.buscaPreco(codigoSistema, tabela_preco)
-                                        let resultEnvPreco =  await this.syncPrice.postPrice(produtoSincronizado[0].Id_bling, arrPreco[0].PRECO );
+                                 let resultEnvPreco = await this.syncPrice.postPrice(produtoSincronizado[0].Id_bling, produtoSincronizado[0].codigo_sistema, tabela_preco );
+
                                         if( resultEnvPreco && resultEnvPreco.msg){
                                             msgRetorno = resultEnvPreco.msg;
                                         }
@@ -152,8 +153,6 @@ export class ProdutoController {
                 return res.status(400).json({ msg: "É necessário que seja informado um array com os códigos dos produtos." });
             }
             
-    
-
                         // configurações para envio das informações
                     let objConfig  = new ApiConfigRepository();
                     let dadosConfig = await objConfig.buscaConfig();
@@ -164,8 +163,10 @@ export class ProdutoController {
                     // contem o valor do parametro de envio de preco ( 0: nao enviar preco, 1: enviar o preco) 
                     const envPreco = Number( dadosConfig[0].enviar_precos)
                     // tabela onde é feita a consulta dos precos a serem enviados
-                    const tabela_preco = Number( dadosConfig[0].tabela_preco);      
+                    const tabela_preco = Number( dadosConfig[0].tabela_preco);
 
+                // setor onde será buscado o saldo de estoque 
+                    const setor = dadosConfig[0].setor    
 
             const resultadosIntegracao: any[] = [];
 
@@ -189,21 +190,21 @@ export class ProdutoController {
                     if (!arrProdSelected || arrProdSelected.length === 0) {
                         resultadoOperacao = { codigo: codigoSelecionado, success: false, msg: `Produto ${codigoSelecionado} não encontrado no sistema de origem.` };
                         console.log(resultadoOperacao.msg);
-                        resultadosIntegracao.push(resultadoOperacao);
+                        resultadosIntegracao.push(resultadoOperacao.msg);
                         continue;
                     }
                     // extrai o produto do array 
                     const prodSelected = arrProdSelected[0];
                     const arrCategoria = await this.categoriaRepository.buscaCategoriaApi(prodSelected.GRUPO);
-                    if (!arrCategoria || arrCategoria.length <= 0) {
-                        resultadoOperacao = { codigo: codigoSelecionado, success: false, msg: `Categoria código: ${prodSelected.GRUPO} (produto ${codigoSelecionado}) ainda não foi enviada para o Bling.` };
+                    if (!arrCategoria || arrCategoria.length === 0) {
+                        resultadoOperacao = { codigo: codigoSelecionado, success: false, msg: `Categoria código: ${prodSelected.GRUPO}  do produto  ${codigoSelecionado}  ainda não foi enviada para o Bling.   ` };
                         console.log(resultadoOperacao.msg);
-                        resultadosIntegracao.push(resultadoOperacao);
+                        resultadosIntegracao.push(resultadoOperacao.msg);
                         continue;
                     }
 
                     // processa o produto retornando os dados do produto de acordo com o que a api do bling esta esperando.
-                    const produtoBling = await this.produtoMapper.postProdutoMapper(prodSelected);
+                    const produtoBling = await this.produtoMapper.postProdutoMapper(prodSelected, envPreco,tabela_preco );
                     
                     await this.delay(1000);  
                     // se o produto selecionado for encontrado, faz a atualização.
@@ -212,8 +213,8 @@ export class ProdutoController {
                         console.log(`Produto ${codigoSelecionado} já existe no Bling (ID: ${produtoSincronizado.Id_bling}). Atualizando...`);
                         
                         await this.delay(1000);  
-                        const responsePostProduto = await this.syncProduct.putProduto( produtoSincronizado.Id_bling  ,produtoBling, envEstoque,  envPreco, tabela_preco);  
-                        resultadoOperacao = { codigo: codigoSelecionado, ...responsePostProduto }; 
+                        const responsePutProduto = await this.syncProduct.putProduto( produtoSincronizado.Id_bling  ,produtoBling, envEstoque,  envPreco, tabela_preco, setor);  
+                        resultadoOperacao = { codigo: codigoSelecionado, ...responsePutProduto }; 
                     } else {
                     // produto nao foi enviado, será feito o envio    
                         console.log(`Produto ${codigoSelecionado} não encontrado no Bling. Enviando como novo...`);
@@ -223,20 +224,18 @@ export class ProdutoController {
                         resultadoOperacao = { codigo: codigoSelecionado, ...responsePostProduto }; 
                         console.log(`Resultado do envio do novo produto ${codigoSelecionado}: ${JSON.stringify(resultadoOperacao)}`);
                     }
-                    resultadosIntegracao.push(resultadoOperacao);
+                    resultadosIntegracao.push(resultadoOperacao.msg);
 
                 } catch (error: any) {
                     console.error(`Erro crítico ao processar produto ${codigoStr} em enviaProduto:`, error);
                     resultadoOperacao = { codigo: codigoStr, success: false, msg: `Erro interno crítico ao processar produto ${codigoStr}: ${error.message || error}` };
-                    resultadosIntegracao.push(resultadoOperacao);
+                    resultadosIntegracao.push(resultadoOperacao.msg);
                 }
             }
             console.log("Processamento de envio/atualização de produtos concluído.");
-            return res.status(200).json({ resultados: resultadosIntegracao });
+            console.log({ resultados: resultadosIntegracao.toString() })
+            return res.status(200).json({ resultados: resultadosIntegracao.toString() });
        }
- 
   
-
-
 
 }

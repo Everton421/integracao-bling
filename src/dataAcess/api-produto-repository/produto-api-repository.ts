@@ -18,6 +18,18 @@ type IProdutoApi={
     
 }
 
+
+
+type OkPacket = {
+  fieldCount:number
+  affectedRows:number
+  insertId:number
+  serverStatus:number
+  warningCount:number
+  message: string
+  protocol41: true,
+  changedRows:number
+}
  
 type IProdutoApiSystem= { // 
     Id_bling: string
@@ -135,7 +147,7 @@ export class ProdutoApiRepository{
             })
         }
 
-        async buscaSincronizados(){
+        async buscaSincronizados():Promise<IProdutoApi[]>{
             return new Promise( async ( resolve, reject )=>{
                const sql = `  SELECT * FROM ${database_api}.produtos ;`
 
@@ -191,7 +203,7 @@ export class ProdutoApiRepository{
         }
         
         
-        async updateByParama( param:Partial< inputProdApi> ){
+        async updateByParama( param:Partial< inputProdApi> ):Promise<OkPacket | undefined>{
             if(!param.id_bling){
                     console.log("É necessario informar o id do produto para atualizar o produto no banco de dados ")
                 return;

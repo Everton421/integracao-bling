@@ -1,6 +1,10 @@
 import { conn,    db_estoque, db_publico, db_vendas } from "../../database/databaseConfig" ;
 import { IProductSystem } from "../../interfaces/IProduct";
 
+type prodPreco = {
+  PRECO:number, PRODUTO:number, TABELA:number, DATA_RECAD:string  
+}
+
 export class ProdutoRepository{
 
     async buscaProdutos():Promise<IProductSystem[]>{
@@ -90,7 +94,8 @@ export class ProdutoRepository{
       })
     }
 
-  async buscaPreco( produto:any, tabela:any ):Promise<[{ PRECO:number, PRODUTO:number, TABELA:number, DATA_RECAD:string }]>{
+
+  async buscaPreco( produto:any, tabela:any ):Promise<prodPreco[]>{
     const sql =  ` SELECT pp.PRECO, pp.PRODUTO, pp.TABELA, pp.DATA_RECAD   from ${db_publico}.prod_tabprecos pp
                   join ${db_publico}.tab_precos tp on tp.codigo = pp.tabela 
                   where pp.PRODUTO = ${produto} and tp.CODIGO = ${tabela}   

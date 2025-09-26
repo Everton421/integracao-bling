@@ -16,6 +16,7 @@ import { SyncORders } from "./Services/sync-orders/sync-orders";
 import { CategoriaRepository } from "./dataAcess/categoria-repository/categoria-repository";
 import { CategoriaController } from "./controllers/categoria-controller/categoria-controller";
 import { ClienteApiRepository } from "./dataAcess/api-cliente-repository/cliente-api-repositoryi";
+import { SetorRepository } from "./dataAcess/setor-repository/setor-repository";
  
 const router = Router();
 
@@ -28,6 +29,7 @@ const router = Router();
   const syncEstock = new SyncStock();
   const pedidoApiRepository = new PedidoApiRepository();
   const clienteApiRepository = new ClienteApiRepository();
+  const setorRepository = new SetorRepository();
 
 router.get('/', verificaToken,async (req,res) =>{
   res.render('index');
@@ -61,7 +63,8 @@ router.get('/clientes', verificaToken, async (req,res)=>{
     let dadosConfig = await apiConfigRepository.buscaConfig();
     let objProdutos = new ProdutoRepository();
     let tabelasDePreco = await objProdutos.buscaTabelaDePreco();
-    res.render('configuracoes', { dados: dadosConfig[0], tabelas: tabelasDePreco  })
+    let setores = await setorRepository.buscaSetor()
+    res.render('configuracoes', { dados: dadosConfig[0], tabelas: tabelasDePreco , setores: setores })
     
   })
 
@@ -78,7 +81,12 @@ router.get('/clientes', verificaToken, async (req,res)=>{
   })
 
  
-  router.post('/api/categorias',  new CategoriaController().postCategory ) 
+  router.post('/api/categorias',  async ( req, res  )=>{
+    let obj = new   CategoriaController()
+
+    await obj.postCategory( req, res )
+
+  }  ) 
 
   router.get('/callback', async (req, res, next) => {
    const apitokenController = new TokenController;

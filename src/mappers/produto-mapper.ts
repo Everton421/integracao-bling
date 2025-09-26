@@ -7,18 +7,30 @@ import { IProdutoBling  } from "./IProdutoBling";
     export type IProdutoBlingSemPreco = Omit<IProdutoBling, 'preco' >
 
 export class ProdutoMapper{
-  
-      async  postProdutoMapper( produto:IProductSystem):Promise<IProdutoBlingSemPreco   >{
+                  
+
+/**
+ * 
+ * @param produto 
+ * @param  postPreco parametro  de envio de preco ( 0: nao enviar preco, 1: enviar o preco)
+ * @param tabela codigo da tabela de preço a ser enviada 
+ * @returns 
+ */
+      async  postProdutoMapper( produto:IProductSystem, postPreco:number, tabela?:number ):Promise<IProdutoBlingSemPreco   >{
             return new Promise( async ( resolve, reject )=>{
 
     const produtoRepository = new ProdutoRepository();
     const categoriaRepository = new CategoriaApiRepository();
     const imgController    = new  ImgController();
        
-      let preco:number ;
+      let preco:number =0;
 
-         const arrPreco = await produtoRepository.buscaPreco(produto.CODIGO, 1)
+      if(postPreco === 1 ){
+         const arrPreco = await produtoRepository.buscaPreco(produto.CODIGO, tabela)
                preco = arrPreco[0].PRECO;
+      }
+
+
               const arrNcm  =  await produtoRepository.buscaNcm(produto.CODIGO);
               const ncm = arrNcm[0].NCM
               const cod_cest = arrNcm[0].COD_CEST
@@ -32,14 +44,14 @@ export class ProdutoMapper{
                let links = await imgController.postFoto( produto ) ;
                 //
 
-             const post: IProdutoBlingSemPreco  = {
+             const post: IProdutoBling  = {
                                     codigo: produto.CODIGO,
                                     nome: produto.DESCRICAO,
                                     descricaoCurta: produto.DESCR_CURTA_SITE,
                                     descricaoComplementar: produto.DESCR_LONGA_SITE,
                                     tipo: 'P',
                                     unidade: unidade,
-                                  //  preco: preco,
+                                    preco: preco,
                                     pesoBruto: produto.PESO,
                                     formato: 'S',
                                     largura: produto.LARGURA,

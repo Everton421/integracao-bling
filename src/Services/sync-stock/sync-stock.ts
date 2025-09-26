@@ -120,8 +120,6 @@ export class SyncStock{
     */
     async enviaEstoque() {
         await verificaTokenTarefas();
-        
-            await this.api.configurarApi();
 
         try {
             await    this.api.configurarApi(); // Aguarda a configuração da API
@@ -157,8 +155,9 @@ export class SyncStock{
                         saldoReal = 0;
                         data_estoque = '0000-00-00 00:00:00'
                     }
+                    //console.log( new Date(data_estoque) ,' > ', new Date(data.data_estoque))
 
-                    if (saldo_enviado !== saldoReal) {
+                    if (  new Date(data_estoque) > new Date(data.data_estoque)) {
 
                         let estoque = {
                             "produto": {
@@ -190,14 +189,14 @@ export class SyncStock{
                                     status = estoqueEnviado.status
 
                                     if (status === 201 || status === 200) {
-                                        await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, data_estoque);
+                                        await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, this.dateService.formatarDataHora(data_estoque));
                                         console.log(estoqueEnviado.data);
                                         console.log(` enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
                                     }
                                 }
                             } else {
                                 console.log(` enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
-                                await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, data_estoque);
+                                await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal,  this.dateService.formatarDataHora(data_estoque));
                             }
                         } catch (err) {
                             console.log(estoque);
@@ -205,7 +204,7 @@ export class SyncStock{
                         }
                         await this.delay(2000);
                     } else {
-                        console.log(`ultimo saldo enviado para o produto ${data.codigo_sistema} igual ao saldo atual, saldo nao enviado`);
+                        console.log(`Não ouve alteração no saldo do produto ${data.codigo_sistema}.`);
                     }
                 }
 
