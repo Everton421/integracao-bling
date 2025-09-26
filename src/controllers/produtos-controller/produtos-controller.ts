@@ -142,9 +142,30 @@ export class ProdutoController {
         }
         return res.status(200).json({ msg: responseIntegracao })
     }
+    
+    
+    
+    
+    
+    async enviaProduto(req: Request, res: Response) {
+            const produtoSelecionados: string[] = req.body.produtos;
+        
+                let arrResult=[]
+                    for( const i of produtoSelecionados ) {
+                        let result:any =  await this.syncProduct.postAndPutProd( Number(i), false );
+                        if(result.resultados){
+                            arrResult.push(result.resultados)
+                        }
+
+                    }
+                    
+        res.status(200).json( { resultados: arrResult.toString()} )
+    }
+
+
     /**
      * envia ou atualiza um produto no bling
-     *  */  
+     *    
     async enviaProduto(req: Request, res: Response) {
             const produtoSelecionados: string[] = req.body.produtos;
 
@@ -237,5 +258,5 @@ export class ProdutoController {
             return res.status(200).json({ resultados: resultadosIntegracao.toString() });
        }
   
-
+*/
 }

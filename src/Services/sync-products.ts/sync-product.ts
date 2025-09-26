@@ -7,7 +7,8 @@ import ConfigApi from "../api/api";
 import { DateService } from "../dateService/date-service";
 import { SyncPrice } from "../sync-price/sync-price";
 import { SyncStock } from "../sync-stock/sync-stock";
-import { IConfig } from "../../interfaces/IConfig";
+import { ApiConfigRepository } from "../../dataAcess/api-config-repository/api-config-repository";
+import { CategoriaApiRepository } from "../../dataAcess/api-categoria-repository/categoria-api-repository";
 
 type dados = {
     codigo:number,
@@ -23,6 +24,8 @@ export class  SyncProduct{
          private syncStock = new SyncStock();
          private syncPrice = new SyncPrice();
          private produtoMapper = new ProdutoMapper();
+         private produto = new ProdutoRepository();
+          private categoriaRepository = new CategoriaApiRepository();
          
          
         private delay(ms: number) {
@@ -112,7 +115,7 @@ export class  SyncProduct{
                                                      
                                            if(response.status ===200 || response.status ===201   ){
                                             let id_bling = response.data.data.id;
-                                                let msgSucess =`produto ${produtoBling.codigo} enviado com sucesso `
+                                                let msgSucess =` produto ${produtoBling.codigo} enviado com sucesso  `
                                                 let prod =  await this.produtoApi.inserir(
                                                             {
                                                                 codigo_sistema:produtoBling.codigo,
@@ -160,7 +163,6 @@ export class  SyncProduct{
      * @returns 
      */
     async putProduto(idProdutobling:any, produtoBling:IProdutoBlingSemPreco, envEstoque:number, envPreco:number, tabela_preco:number, setor:number ){
-       
 
               try {
                         const response = await this.api.config.put(`/produtos/${idProdutobling}`, produtoBling);
@@ -185,7 +187,7 @@ export class  SyncProduct{
                                     descricao: produtoBling.nome
                                 });
                                 if(  resultUpdate && resultUpdate.affectedRows > 0 ){
-                                    return    {  status: response.status ,msg: `produto ${ produtoBling.nome} alterado com sucesso no bling`}  
+                                    return    {  status: response.status ,msg: ` produto ${ produtoBling.nome} alterado com sucesso no bling `}  
 
                                 }
                                 
@@ -195,7 +197,7 @@ export class  SyncProduct{
                                     return    {  status: e.response.status ,msg: e.response.data.error.description}  
                             }
                         } else {
-                                    return    {  status: response ,msg: `Resposta inesperada (${response.status}) ao tentar atualizar o produto no Bling.`}  
+                                    return    {  status: response ,msg: ` Resposta inesperada (${response.status}) ao tentar atualizar o produto no Bling. `}  
                             }
                     } catch (err: IResponseErrorApi | any) {
                         const errorData = err.response?.data?.error.description;
@@ -207,54 +209,106 @@ export class  SyncProduct{
 
     }
 
-    /*
-    async autoUpdateProduct(idProdutobling:any, produtoBling:IProdutoBlingSemPreco, config:IConfig ){
+
+    async postAndPutProd(codigoStr: number, validDateUpdate: boolean ){
+
+            const resultadosIntegracao: any[] = [];
             
-            const produtos = await this.produtoRepository.buscaProdutos();
+                        // configurações para envio das informações
+                    let objConfig  = new ApiConfigRepository();
+                    let dadosConfig = await objConfig.buscaConfig();
 
-                 if(produtos.length > 0 ){
+                    // contem o valor do parametro de envio de estoque ( 0: nao enviar estoque, 1: enviar o estoque) 
+                    const envEstoque = Number(dadosConfig[0].enviar_estoque);
 
-                        for( const prod of produtos ){
+                    // contem o valor do parametro de envio de preco ( 0: nao enviar preco, 1: enviar o preco) 
+                    const envPreco = Number( dadosConfig[0].enviar_precos)
+                    // tabela onde é feita a consulta dos precos a serem enviados
+                    const tabela_preco = Number( dadosConfig[0].tabela_preco);
 
-                    const produtoBling = await this.produtoMapper.postProdutoMapper(prod, config.enviar_precos, config.tabela_preco );
+                // setor onde será buscado o saldo de estoque 
+                    const setor = dadosConfig[0].setor    
 
 
-                        }
-
-                   }
-
+                let resultadoOperacao: any = { codigo: codigoStr, success: false, msg: "Operação não concluída." };
                 try {
-                        const response = await this.api.config.put(`/produtos/${idProdutobling}`, produtoBling);
+                    const codigoSelecionado: number =  Number(codigoStr)   ;
 
-                        if (response.status === 200 || response.status === 201) {
+                    console.log(`Processando envio/atualização do produto código: ${codigoSelecionado}`);
+                    //  tenta buscar o produto selecionado pelo usuario na tabela da integração. 
+                    const arrProdutoSincronizado = await this.produtoApi.findByCodeSystem(codigoSelecionado);
+                    // busca o item no banco de dados do sistema
+                    const arrProdSelected = await this.produto.buscaProduto(codigoSelecionado);
 
-                            try {
-                                let resultUpdate = await this.produtoApi.updateByParama({
-                                    id_bling:  idProdutobling,
-                                    data_envio: this.dateService.obterDataHoraAtual(),
-                                    descricao: produtoBling.nome
-                                });
-                                if(  resultUpdate && resultUpdate.affectedRows > 0 ){
-                                    return    {  status: response.status ,msg: `produto ${ produtoBling.nome} alterado com sucesso no bling`}  
+                    if (!arrProdSelected || arrProdSelected.length === 0) {
+                        resultadoOperacao = { codigo: codigoSelecionado, success: false, msg: `Produto ${codigoSelecionado} não encontrado no sistema de origem.` };
+                        console.log(resultadoOperacao.msg);
 
-                                }
-                                
-
-                            } catch (e: any) {
-                                console.log("erro ao atualizar o produto no banco de dados da integração")
-                                    return    {  status: e.response.status ,msg: e.response.data.error.description}  
-                            }
-                        } else {
-                                    return    {  status: response ,msg: `Resposta inesperada (${response.status}) ao tentar atualizar o produto no Bling.`}  
-                            }
-                    } catch (err: IResponseErrorApi | any) {
-                        const errorData = err.response?.data?.error.description;
-                      console.log("Ocoreu um erro ao tentar atualizar  o produto no bling ")
-                        console.log(err.response?.data?.error);
-                      return    {  status: err.response.status ,msg: err.response.data.error.description}  
-                    
+                        resultadosIntegracao.push(resultadoOperacao.msg);
+                        return resultadosIntegracao;
                     }
-    }
-    */
 
-}
+                    // extrai o produto do array 
+                    const prodSelected = arrProdSelected[0];
+
+                        // verifica a categoria do produto
+                    const arrCategoria = await this.categoriaRepository.buscaCategoriaApi(prodSelected.GRUPO);
+                    if (!arrCategoria || arrCategoria.length === 0) {
+                        resultadoOperacao = { codigo: codigoSelecionado, success: false, msg: `Categoria código: ${prodSelected.GRUPO}  do produto  ${codigoSelecionado}  ainda não foi enviada para o Bling.   ` };
+                        console.log(resultadoOperacao.msg);
+                        resultadosIntegracao.push(resultadoOperacao.msg);
+                        return resultadosIntegracao;
+                        
+                    }
+
+                    // processa o produto retornando os dados do produto de acordo com o que a api do bling esta esperando.
+                    const produtoBling = await this.produtoMapper.postProdutoMapper(prodSelected, envPreco,tabela_preco );
+                    
+                    await this.delay(1000);  
+                    // se o produto selecionado for encontrado, faz a atualização.
+                    if (arrProdutoSincronizado.length > 0) {
+                        const produtoSincronizado = arrProdutoSincronizado[0];
+                        console.log(`Produto ${codigoSelecionado} já existe no Bling (ID: ${produtoSincronizado.Id_bling}). Atualizando...`);
+
+                            /// verifica o parametro de validDateUpdate da função, onde é determinado 
+                            //  se será necessario fazer a comparação das data de recadastro dos produtos 
+                            if( validDateUpdate ){
+
+                             if( new Date(prodSelected.DATA_RECAD) > new Date(produtoSincronizado.data_envio) ){
+                                    await this.delay(1000);  
+                                    const responsePutProduto = await this.putProduto( produtoSincronizado.Id_bling  ,produtoBling, envEstoque,  envPreco, tabela_preco, setor);  
+                                    resultadoOperacao = { codigo: codigoSelecionado, ...responsePutProduto }; 
+                                }else{
+                             resultadoOperacao = { codigo: codigoStr, success: false,
+                                 msg: `O produto ${prodSelected.DESCRICAO} se encontra atualizado` };
+                                console.log(`O produto ${prodSelected.DESCRICAO} se encontra atualizado`)
+                                }
+                            }else{
+                                 await this.delay(1000);  
+                                    const responsePutProduto = await this.putProduto( produtoSincronizado.Id_bling  ,produtoBling, envEstoque,  envPreco, tabela_preco, setor);  
+                                    resultadoOperacao = { codigo: codigoSelecionado, ...responsePutProduto }; 
+                                    
+                            }
+
+                 
+                    } else {
+                    // produto nao foi enviado, será feito o envio    
+                        console.log(`Produto ${codigoSelecionado} não encontrado no Bling. Enviando como novo...`);
+                        await this.delay(1000); 
+
+                        const responsePostProduto = await this.postProduto(produtoBling, prodSelected, envEstoque);  
+                        resultadoOperacao = { codigo: codigoSelecionado, ...responsePostProduto }; 
+                        console.log(`Resultado do envio do novo produto ${codigoSelecionado}: ${JSON.stringify(resultadoOperacao)}`);
+                    }
+                    resultadosIntegracao.push(resultadoOperacao.msg);
+
+                } catch (error: any) {
+                    console.error(`Erro crítico ao processar produto ${codigoStr} em enviaProduto:`, error);
+                    resultadoOperacao = { codigo: codigoStr, success: false, msg: `Erro interno crítico ao processar produto ${codigoStr}: ${error.message || error}` };
+                    resultadosIntegracao.push(resultadoOperacao.msg);
+                }
+            return  { resultados: resultadosIntegracao.toString()}   
+       }
+  
+    }
+     
