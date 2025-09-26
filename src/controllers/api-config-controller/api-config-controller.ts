@@ -77,7 +77,7 @@ export class apiController{
           console.log(err);
         }
       
-        let config ;
+        let config:IConfig;
         if (aux.length > 0) {
           config  = aux[0];
         } else {
@@ -130,7 +130,7 @@ export class apiController{
                precoExecutando = true;
             console.log('enviando preço');
               try{
-                   await this.syncPrice.enviaPrecos(config.tabela_preco)
+                   await this.syncPrice.enviaPrecos(Number(config.tabela_preco))
 
               }catch(e){
                 console.log("Erro ao enviar o preco")

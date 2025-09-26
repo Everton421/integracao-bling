@@ -23,7 +23,7 @@ class SyncCategory {
         if (categoria.length > 0) {
             console.log('categoria ja esta cadastrada');
             id_bling = categoria[0].Id_bling;
-            return { msg: 'categoria foi enviada' };
+            return { msg: `categoria ${categoria[0].codigo_sistema} já foi enviada` };
         }
         else {
             const cadastroSistema = await categoriaSistema.buscaGrupo(value);
@@ -44,11 +44,20 @@ class SyncCategory {
                     //   console.log(id_bling)
                     const value = { id_bling, codigo_sistema, descricao };
                     const cadastro = await categoriaAPI.cadastraCategoriaApi(value);
-                    return { msg: 'categoria enviada com sucesso!' };
+                    if (responseBling.status === 201) {
+                        return { msg: ` categoria ${descricao} enviada com sucesso!` };
+                    }
+                    //return { msg:'categoria enviada com sucesso!'};
                 }
                 catch (err) {
+                    if (err.response.status === 400) {
+                        return { msg: ` Falha ao tentar enviar categoria ${descricao}` };
+                    }
                     console.log('erro ao enviar categoria ' + err);
                 }
+            }
+            else {
+                return { msg: `categoria ${descricao} nao foi encontrada no sistema ` };
             }
         }
     }

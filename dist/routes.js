@@ -15,6 +15,7 @@ const pedido_api_repository_1 = require("./dataAcess/api-pedido-repository/pedid
 const categoria_repository_1 = require("./dataAcess/categoria-repository/categoria-repository");
 const categoria_controller_1 = require("./controllers/categoria-controller/categoria-controller");
 const cliente_api_repositoryi_1 = require("./dataAcess/api-cliente-repository/cliente-api-repositoryi");
+const setor_repository_1 = require("./dataAcess/setor-repository/setor-repository");
 const router = (0, express_1.Router)();
 exports.router = router;
 const produtoRepository = new produto_repository_1.ProdutoRepository();
@@ -25,6 +26,7 @@ const apiConfigRepository = new api_config_repository_1.ApiConfigRepository();
 const syncEstock = new sync_stock_1.SyncStock();
 const pedidoApiRepository = new pedido_api_repository_1.PedidoApiRepository();
 const clienteApiRepository = new cliente_api_repositoryi_1.ClienteApiRepository();
+const setorRepository = new setor_repository_1.SetorRepository();
 router.get('/', TokenMiddleware_1.verificaToken, async (req, res) => {
     res.render('index');
 });
@@ -51,7 +53,8 @@ router.get('/configuracoes', async (req, res) => {
     let dadosConfig = await apiConfigRepository.buscaConfig();
     let objProdutos = new produto_repository_1.ProdutoRepository();
     let tabelasDePreco = await objProdutos.buscaTabelaDePreco();
-    res.render('configuracoes', { dados: dadosConfig[0], tabelas: tabelasDePreco });
+    let setores = await setorRepository.buscaSetor();
+    res.render('configuracoes', { dados: dadosConfig[0], tabelas: tabelasDePreco, setores: setores });
 });
 router.post('/api/produtos', TokenMiddleware_1.verificaToken, async (req, res) => {
     const obj = new produtos_controller_1.ProdutoController();
@@ -63,7 +66,10 @@ router.post('/api/produtos', TokenMiddleware_1.verificaToken, async (req, res) =
         await obj.geraVinculo(req, res);
     }
 });
-router.post('/api/categorias', new categoria_controller_1.CategoriaController().postCategory);
+router.post('/api/categorias', async (req, res) => {
+    let obj = new categoria_controller_1.CategoriaController();
+    await obj.postCategory(req, res);
+});
 router.get('/callback', async (req, res, next) => {
     const apitokenController = new token_controller_1.TokenController;
     const token = apitokenController.obterToken(req, res, next);

@@ -111,7 +111,6 @@ class SyncStock {
     */
     async enviaEstoque() {
         await (0, TokenMiddleware_1.verificaTokenTarefas)();
-        await this.api.configurarApi();
         try {
             await this.api.configurarApi(); // Aguarda a configuração da API
             const resultDeposito = await this.produtoApi.findDefaultDeposit();
@@ -141,7 +140,8 @@ class SyncStock {
                         saldoReal = 0;
                         data_estoque = '0000-00-00 00:00:00';
                     }
-                    if (saldo_enviado !== saldoReal) {
+                    //console.log( new Date(data_estoque) ,' > ', new Date(data.data_estoque))
+                    if (new Date(data_estoque) > new Date(data.data_estoque)) {
                         let estoque = {
                             "produto": {
                                 "id": data.Id_bling
@@ -168,7 +168,7 @@ class SyncStock {
                                     estoqueEnviado = await this.api.config.post('/estoques', estoque);
                                     status = estoqueEnviado.status;
                                     if (status === 201 || status === 200) {
-                                        await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, data_estoque);
+                                        await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, this.dateService.formatarDataHora(data_estoque));
                                         console.log(estoqueEnviado.data);
                                         console.log(` enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
                                     }
@@ -176,7 +176,7 @@ class SyncStock {
                             }
                             else {
                                 console.log(` enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
-                                await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, data_estoque);
+                                await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, this.dateService.formatarDataHora(data_estoque));
                             }
                         }
                         catch (err) {
@@ -186,7 +186,7 @@ class SyncStock {
                         await this.delay(2000);
                     }
                     else {
-                        console.log(`ultimo saldo enviado para o produto ${data.codigo_sistema} igual ao saldo atual, saldo nao enviado`);
+                        console.log(`Não ouve alteração no saldo do produto ${data.codigo_sistema}.`);
                     }
                 }
             }

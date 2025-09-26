@@ -7,12 +7,14 @@ const pedido_controller_1 = require("../pedido-controller/pedido-controller");
 const api_config_repository_1 = require("../../dataAcess/api-config-repository/api-config-repository");
 const sync_stock_1 = require("../../Services/sync-stock/sync-stock");
 const sync_orders_1 = require("../../Services/sync-orders/sync-orders");
+const sync_price_1 = require("../../Services/sync-price/sync-price");
 var cron = require('node-cron');
 class apiController {
     constructor() {
         this.pedido = new pedido_controller_1.pedidoController();
         this.syncStock = new sync_stock_1.SyncStock();
         this.syncOrders = new sync_orders_1.SyncORders();
+        this.syncPrice = new sync_price_1.SyncPrice();
     }
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -39,16 +41,27 @@ class apiController {
         let codigo_vendedor = Number(req.body.codigo_vendedor);
         let enviar_estoque = req.body.enviar_estoque;
         let enviar_preco = req.body.enviar_precos;
-        let aux = await obj.atualizaDados({ enviar_precos: enviar_preco, enviar_estoque: enviar_estoque, enviar_produtos: enviar_produtos, tabela_preco: tabela_preco, vendedor: codigo_vendedor, importar_pedidos: importar_pedidos });
+        let setor = req.body.setor;
+        let aux = await obj.atualizaDados({ enviar_precos: enviar_preco, enviar_estoque: enviar_estoque, enviar_produtos: enviar_produtos, tabela_preco: tabela_preco, vendedor: codigo_vendedor, importar_pedidos: importar_pedidos, setor: setor });
         if (aux.affectedRows > 0) {
             return res.redirect('/configuracoes');
         }
     }
     async main() {
         await (0, TokenMiddleware_1.verificaTokenTarefas)();
+        if (!process.env.IMPORTAR_PEDIDOS) {
+            throw new Error('é necessario informar a variavel process.env.IMPORTAR_PEDIDOS');
+        }
+        if (!process.env.ENVIAR_ESTOQUE) {
+            throw new Error('é necessario informar a variavel process.env.ENVIAR_ESTOQUE');
+        }
+        if (!process.env.ENVIAR_PRECO) {
+            throw new Error('é necessario informar a variavel process.env.PRECO');
+        }
         const tempoPedido = process.env.IMPORTAR_PEDIDOS;
         const tempoEstoque = process.env.ENVIAR_ESTOQUE;
-        let aux;
+        const tempoPreco = process.env.ENVIAR_PRECO;
+        let aux = [];
         try {
             aux = await this.buscaConfig();
         }
@@ -88,6 +101,27 @@ class apiController {
                 }
                 finally {
                     estoqueExecutando = false;
+                }
+            });
+        }
+        if (config.enviar_precos === 1) {
+            await this.delay(8000);
+            let precoExecutando = false;
+            cron.schedule(tempoPreco, async () => {
+                if (precoExecutando) {
+                    console.log('Processo de envio de preço ja esta em execução');
+                    return;
+                }
+                precoExecutando = true;
+                console.log('enviando preço');
+                try {
+                    await this.syncPrice.enviaPrecos(Number(config.tabela_preco));
+                }
+                catch (e) {
+                    console.log("Erro ao enviar o preco");
+                }
+                finally {
+                    precoExecutando = false;
                 }
             });
         }

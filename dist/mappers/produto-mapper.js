@@ -5,14 +5,23 @@ const imgController_1 = require("../controllers/imgBB/imgController");
 const categoria_api_repository_1 = require("../dataAcess/api-categoria-repository/categoria-api-repository");
 const produto_repository_1 = require("../dataAcess/produto-repository/produto-repository");
 class ProdutoMapper {
-    async postProdutoMapper(produto) {
+    /**
+     *
+     * @param produto
+     * @param  postPreco parametro  de envio de preco ( 0: nao enviar preco, 1: enviar o preco)
+     * @param tabela codigo da tabela de preço a ser enviada
+     * @returns
+     */
+    async postProdutoMapper(produto, postPreco, tabela) {
         return new Promise(async (resolve, reject) => {
             const produtoRepository = new produto_repository_1.ProdutoRepository();
             const categoriaRepository = new categoria_api_repository_1.CategoriaApiRepository();
             const imgController = new imgController_1.ImgController();
-            let preco;
-            const arrPreco = await produtoRepository.buscaPreco(produto.CODIGO, 1);
-            preco = arrPreco[0].PRECO;
+            let preco = 0;
+            if (postPreco === 1) {
+                const arrPreco = await produtoRepository.buscaPreco(produto.CODIGO, tabela);
+                preco = arrPreco[0].PRECO;
+            }
             const arrNcm = await produtoRepository.buscaNcm(produto.CODIGO);
             const ncm = arrNcm[0].NCM;
             const cod_cest = arrNcm[0].COD_CEST;
@@ -30,7 +39,7 @@ class ProdutoMapper {
                 descricaoComplementar: produto.DESCR_LONGA_SITE,
                 tipo: 'P',
                 unidade: unidade,
-                //  preco: preco,
+                preco: preco,
                 pesoBruto: produto.PESO,
                 formato: 'S',
                 largura: produto.LARGURA,

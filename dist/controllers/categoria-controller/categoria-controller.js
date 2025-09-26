@@ -7,12 +7,15 @@ class CategoriaController {
         const syncCategory = new sync_category_1.SyncCategory();
         const arrSelecionados = req.body.categorias;
         if (Array.isArray(arrSelecionados)) {
+            let arrResult = [];
             for (const i of arrSelecionados) {
                 let result = await syncCategory.validaCatedoria(Number(i));
                 if (result && result.msg) {
-                    res.status(200).json({ msg: result.msg });
+                    arrResult.push(result.msg);
                 }
             }
+            console.log(arrResult.toString());
+            res.status(200).json({ msg: arrResult.toString() });
         }
     }
 }

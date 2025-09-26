@@ -47,6 +47,10 @@ class ApiConfigRepository {
                 conditions.push(' vendedor = ? ');
                 values.push(Number(json.vendedor));
             }
+            if (json.setor) {
+                conditions.push(' setor = ? ');
+                values.push(Number(json.setor));
+            }
             let finalSql = '';
             let whereClause = ' WHERE  ID = 1;';
             if (conditions.length > 0) {
