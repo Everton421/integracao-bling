@@ -71,7 +71,7 @@ class SyncProduct {
                 data_recad_sistema: this.dateService.formatarDataHora(dados.data_recad_sistema),
                 data_estoque: this.dateService.obterDataHoraAtual(),
                 data_envio: this.dateService.obterDataHoraAtual(),
-                data_preco: '0000-00-00 00:00:00'
+                data_preco: '2001-01-01 10:00:00'
             };
             try {
                 let prod = await this.produtoApi.inserir(produtoEnviado);
