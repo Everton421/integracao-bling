@@ -1,6 +1,7 @@
 export interface IProdutoBling{
     codigo:number,
     nome:string,
+    situacao: "A" | "I"
     descricaoCurta:string,
     descricaoComplementar:string,
     tipo:string,

@@ -21,6 +21,9 @@ export interface IProductSystem  {
     GRUPO:number
     DESCR_CURTA_SITE:string,
     DESCR_LONGA_SITE:string,
+    DESCR_CURTA_MKTPLACE:string
+    DESCR_LONGA_MKTPLACE:string
+
 }
 
  

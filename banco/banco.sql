@@ -108,7 +108,7 @@ CREATE TABLE `produtos_get` (
 DROP TABLE IF EXISTS `tokens`;
 CREATE TABLE `tokens` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `token` varchar(255) DEFAULT NULL,
+    `token` blob DEFAULT NULL,
   `refresh_token` varchar(255) DEFAULT NULL,
   `expires_in` varchar(255) DEFAULT NULL,
   `ult_atualizacao` timestamp NULL DEFAULT NULL,

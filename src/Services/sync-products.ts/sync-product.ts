@@ -125,7 +125,6 @@ export class  SyncProduct{
                                                                 descricao:produtoBling.nome,
                                                                 id_bling:response.data.data.id,
                                                                 saldo:0,
-
                                                                 variacao:'N',
                                                                 com_variacao:'N',
                                                                 data_preco: '2000-01-01 10:00:00'
@@ -148,8 +147,11 @@ export class  SyncProduct{
                                                     }   
                                 } catch (err:IResponseErrorApi | any ) {
                                     console.log("Ocoreu um erro ao tentar cadastrar  o produto no bling ")
-                                    console.log(produtoBling)
-                                    return    {  status: err.response.status ,msg: err.response.data.error.description}  
+                                    console.log(produtoBling, "\n")
+                                    console.log(err.response);
+                                    const response = err.response.data
+                                    const object = JSON.stringify(err.response.data.error.fields)
+                                    return    {  status: err.response.status ,msg:  `${response.error.description} \n campos: ${object}` }  
                                 }
     }
 

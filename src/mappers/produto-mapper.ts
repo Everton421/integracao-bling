@@ -47,9 +47,10 @@ export class ProdutoMapper{
              const post: IProdutoBling  = {
                                     codigo: produto.CODIGO,
                                     nome: produto.DESCRICAO,
-                                    descricaoCurta: produto.DESCR_CURTA_SITE,
-                                    descricaoComplementar: produto.DESCR_LONGA_SITE,
+                                    descricaoCurta: produto.DESCR_CURTA_MKTPLACE,
+                                    descricaoComplementar: produto.DESCR_LONGA_MKTPLACE,
                                     tipo: 'P',
+                                    situacao: 'A',
                                     unidade: unidade,
                                     preco: preco,
                                     pesoBruto: produto.PESO,
