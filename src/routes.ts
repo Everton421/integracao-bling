@@ -31,7 +31,7 @@ const router = Router();
   const clienteApiRepository = new ClienteApiRepository();
   const setorRepository = new SetorRepository();
 
-router.get('/', verificaToken,async (req,res) =>{
+router.get('/',   async (req,res) =>{
   res.render('index');
 })
 
