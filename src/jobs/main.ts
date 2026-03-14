@@ -6,6 +6,7 @@ import { SyncORders } from "../Services/sync-orders/sync-orders";
 import { SyncPrice } from "../Services/sync-price/sync-price";
 import { SyncStock } from "../Services/sync-stock/sync-stock";
 import { JobPrice } from "./job-price";
+import { JobProduto } from "./job-produto";
 var cron = require('node-cron');
 
 export  class Job{
@@ -35,6 +36,7 @@ export  class Job{
         const tempoPedido = process.env.IMPORTAR_PEDIDOS;
         const tempoEstoque = process.env.ENVIAR_ESTOQUE;
         const tempoPreco =  process.env.ENVIAR_PRECO;
+        const tempoProduto =  process.env.ENVIAR_PRODUTO;
 
         let aux:IConfig[] = [] ;
 
@@ -111,5 +113,29 @@ export  class Job{
 
       }
 
+      if(config.enviar_produtos === 'S'){
+             await  this.delay(1000);
+          let precoExecutando = false;
+
+          cron.schedule(tempoProduto, async () => {
+            console.log('[V] Iniciando envio dos produtos.');
+
+            if(precoExecutando){
+              console.log('[X] Processo de envio de produtos ja esta em execução');
+              return;
+            }
+               precoExecutando = true;
+              try{
+                const jobProduto = new JobProduto();
+                        await jobProduto.enviarProdutos();
+              }catch(e){
+            console.log('[X] Ocorreu um erro ao enviar os produtos.');
+
+              }finally{
+               precoExecutando = false;
+              }
+
+          });
+      }
     }
 }
