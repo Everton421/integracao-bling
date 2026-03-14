@@ -22,10 +22,10 @@ interface categoria{
 }
 
 interface midia{
-    "imagens":{
-        "externas":[
+     imagens :{
+         imagensURL :[
             { 
-                link:any
+                link:string
             }
         ]
     }

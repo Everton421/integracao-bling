@@ -1,16 +1,15 @@
-import express,{NextFunction, Request,Response} from 'express';
-import "express-async-errors";
+import bodyParser from 'body-parser';
 import cors from 'cors';
+import 'dotenv/config';
+import express, { NextFunction, Request, Response } from 'express';
+import "express-async-errors";
+import path from 'path';
 const https = require('https');
 const fs = require('fs');
-import 'dotenv/config';
-import bodyParser from 'body-parser';
-import path from 'path'; 
 
+import { JobPrice } from './jobs/job-price';
 import { router } from './routes';
-import { conn } from './database/databaseConfig';
-import { apiController } from './controllers/api-config-controller/api-config-controller';
-import { verificaTokenTarefas } from './Middlewares/TokenMiddleware';
+import { Job } from './jobs/main';
 
         const app = express();
 
@@ -36,8 +35,9 @@ import { verificaTokenTarefas } from './Middlewares/TokenMiddleware';
                 })
 
                 async function tarefas(){ 
-                 const aux = new apiController();
-                const main = await aux.main();
+                     const mainJob = new Job();
+                      await mainJob.main();
+         
             }
 
             tarefas();

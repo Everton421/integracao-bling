@@ -1,4 +1,5 @@
 import { conn, database_api } from "../../database/databaseConfig";
+import { IConfig } from "../../interfaces/IConfig";
 
 type param = {
           importar_pedidos:number,
@@ -8,6 +9,7 @@ type param = {
           vendedor:number,
           enviar_produtos: string
           setor:number
+ 
     }
 
   type OkPacket= {
@@ -24,7 +26,7 @@ type param = {
 export class ApiConfigRepository{
 
         
-            async buscaConfig():Promise<param[]>{
+            async buscaConfig():Promise<IConfig[]>{
                 return new Promise( async (resolve, reject)=>{
                     const sql =
                     ` SELECT * FROM ${database_api}.config;`
@@ -40,13 +42,29 @@ export class ApiConfigRepository{
             }
         
 
-     async atualizaDados( json:param ):Promise<OkPacket>{
+     async atualizaDados( json:Partial<IConfig> ):Promise<OkPacket>{
         return new Promise ( async (resolve,reject ) =>{
             let BaseSql = `
                 UPDATE ${database_api}.config set   
             `
                 let conditions=[]
                 let values=[]
+
+                if( json.ult_env_preco){
+                 conditions.push(' ult_env_preco = ? ')
+                 values.push(json.ult_env_preco)
+                }
+
+                if( json.ult_env_produto){
+                  conditions.push(' ult_env_produto = ? ')
+                  values.push(json.ult_env_produto)
+                }
+
+                if( json.ult_env_estoque){
+                  conditions.push(' ult_env_estoque = ? ')
+                  values.push(json.ult_env_estoque)
+                }
+
 
             if( json.enviar_estoque){
                 conditions.push(' enviar_estoque = ? ')
@@ -90,7 +108,6 @@ export class ApiConfigRepository{
                     console.log("erro ao tentar atualizar as configurações da integracao ", err)
                     reject(err);
                 }else{
-                    console.log('configurações atualizados com sucesso! ', result )
                     resolve(result);
                 }
             })

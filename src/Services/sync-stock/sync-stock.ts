@@ -3,6 +3,7 @@ import { ProdutoRepository } from "../../dataAcess/produto-repository/produto-re
 import { ProdutoApiRepository } from "../../dataAcess/api-produto-repository/produto-api-repository";
 import ConfigApi from "../api/api";
 import { DateService } from "../dateService/date-service";
+import { ApiConfigRepository } from "../../dataAcess/api-config-repository/api-config-repository";
 
 
 export class SyncStock{
@@ -12,8 +13,9 @@ export class SyncStock{
               private produtoApi = new ProdutoApiRepository();
               private produto = new ProdutoRepository();
               private api = new ConfigApi();
+               private apiConfigRepository = new ApiConfigRepository();
 
-    private delay(ms: number) {
+         private delay(ms: number) {    
             console.log(`Aguardando ${ms / 1000} segundos...`);
                 return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -126,6 +128,8 @@ export class SyncStock{
 
             const resultDeposito = await this.produtoApi.findDefaultDeposit();
 
+            const arrApiConfig = await this.apiConfigRepository.buscaConfig();
+                const configApi = arrApiConfig[0];
             let idDepositoBling;
             if (resultDeposito.length > 0) {
                 idDepositoBling = resultDeposito[0].Id_bling;
@@ -141,7 +145,7 @@ export class SyncStock{
             if (produtosEnviados.length > 0) {
 
                 for (const data of produtosEnviados) {
-                    const resultSaldo: any = await this.produto.buscaEstoqueReal(data.codigo_sistema, 1);
+                    const resultSaldo: any = await this.produto.buscaEstoqueReal(data.codigo_sistema, configApi.setor);
 
                     let saldo_enviado = data.saldo_enviado;
 
@@ -157,7 +161,7 @@ export class SyncStock{
                     }
                     //console.log( new Date(data_estoque) ,' > ', new Date(data.data_estoque))
 
-                    if (  new Date(data_estoque) > new Date(data.data_estoque)) {
+                    if (   saldoReal != saldo_enviado ) {
 
                         let estoque = {
                             "produto": {
@@ -183,37 +187,35 @@ export class SyncStock{
                             if (status !== 201) {
                                 while (status !== 201 || status !== 200) {
                                     await this.delay(2000);
-                                    console.log(` aguardando para enviar saldo para o produto ${data.codigo_sistema}...`)
+                                    console.log(`[V]  aguardando para enviar saldo para o produto ${data.codigo_sistema}...`)
                                     estoqueEnviado = await this.api.config.post('/estoques', estoque);
 
                                     status = estoqueEnviado.status
 
                                     if (status === 201 || status === 200) {
                                         await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal, this.dateService.formatarDataHora(data_estoque));
-                                        console.log(estoqueEnviado.data);
-                                        console.log(` enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
+                                        console.log(`[V]  enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
                                     }
                                 }
                             } else {
-                                console.log(` enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
+                                console.log(` [V] enviado saldo para produto: ${data.codigo_sistema}   saldo: ${saldoReal}  idBling: ${data.Id_bling} `);
                                 await this.produtoApi.atualizaSaldoEnviado(data.Id_bling, saldoReal,  this.dateService.formatarDataHora(data_estoque));
                             }
                         } catch (err) {
-                            console.log(estoque);
                             console.log(err + ` erro ao enviar o estoque para o produto ${data.codigo_sistema} `);
                         }
                         await this.delay(2000);
                     } else {
-                        console.log(`Não ouve alteração no saldo do produto ${data.codigo_sistema}.`);
+                        console.log(`[X] Não ouve alteração no saldo do produto ${data.codigo_sistema}.`);
                     }
                 }
 
             }
-            console.log('fim do processo')
 
         } catch (error) {
             console.log(error)
         }
+        await this.apiConfigRepository.atualizaDados({ult_env_estoque:this.dateService.obterDataHoraAtual()})
     }
     
 }

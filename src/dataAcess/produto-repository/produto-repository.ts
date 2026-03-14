@@ -113,7 +113,7 @@ export class ProdutoRepository{
 
   async buscaFotos(produto:any){
     const sql =  `  
-        SELECT  CAST(FOTO  AS CHAR(1000)  CHARACTER SET utf8)  FOTO  from ${db_publico}.fotos_prod where  PRODUTO = ${produto};    
+        SELECT  CAST(FOTO  AS CHAR(1000)  CHARACTER SET latin1)  FOTO  from ${db_publico}.fotos_prod where  PRODUTO = ${produto};    
                 ; ` 
 
     return new Promise( async ( resolve, reject )=>{

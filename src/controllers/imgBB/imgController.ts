@@ -1,11 +1,21 @@
 import axios from "axios";
-import fs from "fs";
+import * as fs from 'fs/promises';
 import path from "path";
+import { constants } from 'fs';
 
 import FormData, { promises } from "form-data";
 import { ProdutoRepository } from "../../dataAcess/produto-repository/produto-repository";
 
 export class ImgController{
+
+  async   fileExists(filePath:string) {
+  try {
+    await fs.access(filePath, constants.F_OK);
+    return true; // The check succeeded
+  } catch (error) {
+    return false; // The check failed (file does not exist or other error)
+  }
+}
 
 async postIMGBB ( caminho:string , foto:string ){
     return new Promise( async (resolve, reject)=>{
@@ -16,13 +26,14 @@ async postIMGBB ( caminho:string , foto:string ){
     const imagePath = path.join(caminho, foto); // Caminho para a imagem
   //  if(!imagePath || !caminho){
   //      return
-  //  }
-        if(fs.existsSync(imagePath)){
+  //  } 
+  console.log(imagePath)
+        if( await this.fileExists(imagePath) ){
             console.log('arquivo existe')
         
       console.log(imagePath);
 
-   const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' });
+   const imageBase64 = await fs.readFile(imagePath, { encoding: 'base64' });
  
      const form = new FormData();
      form.append('image', imageBase64);

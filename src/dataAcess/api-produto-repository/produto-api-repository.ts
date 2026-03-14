@@ -149,9 +149,34 @@ export class ProdutoApiRepository{
 
         async buscaSincronizados():Promise<IProdutoApi[]>{
             return new Promise( async ( resolve, reject )=>{
-               const sql = `  SELECT * FROM ${database_api}.produtos ;`
-
+               const sql    = `  SELECT * FROM ${database_api}.produtos ;`
+            
                 await conn_api.query(sql, (err, result:IProdutoApi[])=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        }
+        /**
+         *  obtem os produtos enviados após a data informada
+         * @param data 
+         * @returns 
+         */
+          async findChagedAfter(data:string):Promise<IProdutoApi[]>{
+            return new Promise( async ( resolve, reject )=>{
+
+                    const sql = `
+                    select
+                            pb.*
+                        from ${database_api}.produtos as pb
+                        join ${db_publico}.cad_prod cp on cp.CODIGO = pb.codigo_sistema 
+                            where cp.data_recad > ?
+                `;
+
+                await conn_api.query(sql,data,  (err, result:IProdutoApi[])=>{
                     if(err){
                         reject(err);
                     }else{
@@ -267,7 +292,18 @@ export class ProdutoApiRepository{
                 })
             })
         }
-
+  async findDeAllDeposit() :Promise<IDeposito[]>{
+               return new Promise( async ( resolve, reject )=>{
+                const sql = ` SELECT * FROM ${database_api}.depositos  ;`
+                await conn_api.query(sql, (err, result:IDeposito[] )=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        }
 
         async findDefaultDeposit() :Promise<IDeposito[]>{
                return new Promise( async ( resolve, reject )=>{

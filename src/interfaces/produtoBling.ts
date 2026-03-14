@@ -15,18 +15,19 @@ export interface ProdutoBling{
     tributacao:tributacao,
     categoria?:categoria
     midia?:midia
+
 }
 interface categoria{
     id:any
 }
 
 interface midia{
-    "imagens":{
-        "externas":[
+     imagens :{
+         imagensURL :[
             { 
-                link:any
+                link:string
             }
-        ]
+        ]  
     }
 }
 interface dimensoes{

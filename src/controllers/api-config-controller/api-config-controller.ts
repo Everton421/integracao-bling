@@ -51,7 +51,7 @@ export class apiController{
            }
       }
 
-
+/*
   async main() {
         await verificaTokenTarefas();
 
@@ -143,5 +143,5 @@ export class apiController{
       }
 
     }
-
+*/
 }
