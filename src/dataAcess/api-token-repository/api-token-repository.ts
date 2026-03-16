@@ -30,8 +30,26 @@ async insereToken(json:any, database:any){
     }
 
 
-    async  buscaToken(){
-        const sql = `SELECT * FROM ${database_api}.tokens WHERE Id = 1`;
+    async  buscaToken2(){
+        const sql = `SELECT  
+            CAST(t.token  AS CHAR(1000)  CHARACTER SET latin1) as token , 
+            t.Id,
+            t.expires_in,
+            t.ult_atualizacao
+             FROM ${database_api}.tokens t  WHERE t.Id = 1`;
+        return new Promise( async (resolve, reject)=>{
+            await conn_api.query(sql, (err, result) => {
+                if(err){
+                    reject(err);
+                }else{
+                    resolve(result);
+                }
+        })
+    })
+    }
+  async  buscaToken(){
+        const sql = `SELECT   *
+             FROM ${database_api}.tokens t  WHERE t.Id = 1`;
         return new Promise( async (resolve, reject)=>{
             await conn_api.query(sql, (err, result) => {
                 if(err){
