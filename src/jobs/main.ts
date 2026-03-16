@@ -57,7 +57,7 @@ export  class Job{
           await this.delay(8000);
       
           cron.schedule(tempoPedido, async () => {
-            await this.pedido.buscaPedidosBling(config.vendedor);
+            await this.syncOrders.buscaPedidosBling(config.vendedor);
           await this.delay(2000);
             await this.syncOrders.updateBling();
 

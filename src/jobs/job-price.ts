@@ -33,8 +33,10 @@ import { DateService } from "../Services/dateService/date-service";
                                 // obtem os produtos que já foram enviados com base na data de ultimo envio de preço.
                             const produtosEnviados  = await this.produtoApi.findChagedAfter(config.ult_env_preco);
 
-                                if (produtosEnviados.length > 0) {
+                                if (produtosEnviados.length > 0 ) {
                                     for (const data of produtosEnviados) {
+                                        if(data.Id_bling){
+
                                     // obtem os dados do produto no sistema.
                                     const resultPrecoSistema = await this.produtoRepository.buscaPreco(data.codigo_sistema, config.tabela_preco);
                                         if( resultPrecoSistema.length > 0 ){
@@ -65,6 +67,9 @@ import { DateService } from "../Services/dateService/date-service";
                                         }else{
                                              console.log(`[X] Não foi encontrado registro de preço do produto ${data.descricao} na tabela ${config.tabela_preco} `)
                                            }
+                                        }else{
+                                            console.log(`[X] produto ${data.CODIGO} não foi enviado. `)
+                                        }
                                     }
                            }
                     }

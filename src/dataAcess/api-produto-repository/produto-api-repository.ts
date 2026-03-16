@@ -71,6 +71,7 @@ type IDeposito  = {
     situacao:number
     padrao: 'S' | 'N'
 }
+type IProductSinc = IProdutoApi & { CODIGO :number}
 
 /**
  *   representa os dados necessarios para cadastrar na tabela depositos da integração.
@@ -165,7 +166,7 @@ export class ProdutoApiRepository{
          * @param data 
          * @returns 
          */
-          async findChagedAfter(data:string):Promise<IProdutoApi & {CODIGO:number } []>{
+          async findChagedAfter(data:string):Promise<IProductSinc[]>{
             return new Promise( async ( resolve, reject )=>{
 
                     const sql = `
