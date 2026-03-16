@@ -113,7 +113,7 @@ export  class Job{
 
       }
 
-      if(config.enviar_produtos === 'S'){
+      if(config.enviar_produtos === 'E'){
              await  this.delay(1000);
           let precoExecutando = false;
 
