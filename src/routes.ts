@@ -67,14 +67,15 @@ router.get('/configuracoes', async (req, res) => {
 
 router.post('/api/produtos', verificaToken, async (req: Request, res: Response) => {
   const obj = new ProdutoController()
-  let dadosConfig = await apiConfigRepository.buscaConfig();
 
-  if (dadosConfig[0].enviar_produtos === 'E') {
-    await obj.enviaProduto(req, res);
-  }
-  if (dadosConfig[0].enviar_produtos === 'S') {
-    await obj.geraVinculo(req, res);
-  }
+  let dadosConfig = await apiConfigRepository.buscaConfig();
+   
+   if (dadosConfig[0].enviar_produtos === 'E') {
+     await obj.enviaProduto(req, res);
+   } 
+   if (dadosConfig[0].enviar_produtos === 'S') {
+      await obj.geraVinculo(req, res);
+   }
 })
 
 

@@ -145,7 +145,6 @@ export class ProdutoController {
 
     async enviaProduto(req: Request, res: Response) {
         const produtoSelecionados: string[] = req.body.produtos;
-
         let arrResult = []
         for (const i of produtoSelecionados) {
             let result: any = await this.syncProduct.postAndPutProd(Number(i), false);

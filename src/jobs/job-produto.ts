@@ -23,7 +23,7 @@ export class JobProduto{
             if(produtos.length > 0 ){
                 console.log(`[V] enviando/atualizando ${produtos.length} produtos...`)
                     for (const i of produtos) {
-                        let result: any = await this.syncProduct.postAndPutProd(Number(i.codigo_sistema), true );
+                        let result: any = await this.syncProduct.postAndPutProd(Number(i.CODIGO), true );
                         if (result.resultados) {
                             arrResult.push(result.resultados)
                         }

@@ -165,18 +165,20 @@ export class ProdutoApiRepository{
          * @param data 
          * @returns 
          */
-          async findChagedAfter(data:string):Promise<IProdutoApi[]>{
+          async findChagedAfter(data:string):Promise<IProdutoApi & {CODIGO:number } []>{
             return new Promise( async ( resolve, reject )=>{
 
                     const sql = `
-                    select
-                            pb.*
-                        from ${database_api}.produtos as pb
-                        join ${db_publico}.cad_prod cp on cp.CODIGO = pb.codigo_sistema 
-                            where cp.data_recad > ?
+                        select
+                            pb.*,
+                            cp.CODIGO
+                            from ${db_publico}.cad_prod cp 
+                            left join ${database_api}.produtos as pb on cp.CODIGO = pb.codigo_sistema 
+                            where cp.NO_SITE = 'S' AND cp.data_recad > ?
                 `;
 
-                await conn_api.query(sql,data,  (err, result:IProdutoApi[])=>{
+
+                await conn_api.query(sql,data,  (err, result )=>{
                     if(err){
                         reject(err);
                     }else{
