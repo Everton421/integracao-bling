@@ -1,5 +1,5 @@
-# Host: 192.168.100.106  (Version 11.3.2-MariaDB)
-# Date: 2025-09-26 10:58:39
+# Host: 177.125.218.237  (Version 5.5.5-10.6.22-MariaDB-0ubuntu0.22.04.1)
+# Date: 2026-03-16 08:03:07
 # Generator: MySQL-Front 6.1  (Build 1.26)
 
 
@@ -27,14 +27,7 @@ CREATE TABLE `clientes` (
   PRIMARY KEY (`Id_bling`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
-#
-# Data for table "clientes"
-#
-
-
-#
-# Structure for table "config"
-#
+ 
 
 DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
@@ -43,15 +36,14 @@ CREATE TABLE `config` (
   `enviar_estoque` int(10) NOT NULL DEFAULT 0,
   `enviar_precos` int(11) DEFAULT 0,
   `tabela_preco` int(11) NOT NULL DEFAULT 0,
-  `enviar_produtos` enum('S','E') DEFAULT 'E' COMMENT 'S= gerar vinculo do produto, E= faz o envio\\atualizacao do produto',
+  `enviar_produtos` enum('S','E','N') DEFAULT 'E' COMMENT 'S= gerar vinculo do produto, E= faz o envio\\atualizacao do produto, n=nao enviar',
   `vendedor` int(10) NOT NULL DEFAULT 0,
   `setor` int(10) DEFAULT 1,
+  `ult_env_preco` datetime DEFAULT '2000-01-01 00:00:00',
+  `ult_env_estoque` datetime DEFAULT '2000-01-01 00:00:00',
+  `ult_env_produto` datetime DEFAULT '2000-01-01 00:00:00',
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
- 
-
-INSERT INTO `config` VALUES (1,0,0,0,0,'E',0,1);
 
  
 
@@ -75,7 +67,14 @@ CREATE TABLE `pedidos` (
   PRIMARY KEY (`Id_bling`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
- 
+#
+# Data for table "pedidos"
+#
+
+
+#
+# Structure for table "produtos"
+#
 
 DROP TABLE IF EXISTS `produtos`;
 CREATE TABLE `produtos` (
@@ -103,12 +102,19 @@ CREATE TABLE `produtos_get` (
   PRIMARY KEY (`Id_bling`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
- 
+#
+# Data for table "produtos_get"
+#
+
+
+#
+# Structure for table "tokens"
+#
 
 DROP TABLE IF EXISTS `tokens`;
 CREATE TABLE `tokens` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
-    `token` blob DEFAULT NULL,
+  `token` blob DEFAULT NULL,
   `refresh_token` varchar(255) DEFAULT NULL,
   `expires_in` varchar(255) DEFAULT NULL,
   `ult_atualizacao` timestamp NULL DEFAULT NULL,

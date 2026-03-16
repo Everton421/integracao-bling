@@ -27,12 +27,12 @@ export class PostFreeImgHost {
         params.append('format', 'json');
 
         try {
-            console.log("Iniciando upload para FreeImage.host...");
+         //   console.log("Iniciando upload para FreeImage.host...");
 
             const response = await axios.post('https://freeimage.host/api/1/upload', params);
 
             if (response.data && response.data.image && response.data.image.url) {
-                console.log('Upload realizado com sucesso:', response.data.image.url);
+           //     console.log('Upload realizado com sucesso:', response.data.image.url);
                 return response.data.image.url;
             } else {
                 throw new Error("Retorno inesperado da API de Imagem");
@@ -50,7 +50,7 @@ export class PostFreeImgHost {
 
             const imagePath = path.join(caminho, foto); // Caminho para a imagem
             if (await this.fileExists(imagePath)) {
-                console.log('Arquivo encontrado caminho: ', imagePath)
+             //   console.log('Arquivo encontrado caminho: ', imagePath)
 
                 console.log(imagePath);
 
