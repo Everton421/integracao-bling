@@ -9,8 +9,8 @@ type param = {
           vendedor:number,
           enviar_produtos: string
           setor:number
- 
     }
+
 
   type OkPacket= {
   fieldCount: number,
@@ -29,7 +29,10 @@ export class ApiConfigRepository{
             async buscaConfig():Promise<IConfig[]>{
                 return new Promise( async (resolve, reject)=>{
                     const sql =
-                    ` SELECT * FROM ${database_api}.config;`
+                    ` SELECT 
+                    c.*,
+                    AST(c.caminho_fotos  AS CHAR(1000)  CHARACTER SET latin1) as caminho_fotos   
+                     FROM ${database_api}.config as c;`
                     await conn.query( sql, ( err, result )=>{
                         if(err){
                             reject(err)

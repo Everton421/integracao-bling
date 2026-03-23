@@ -23,7 +23,10 @@ export class apiController{
     async buscaConfig() :Promise<IConfig[]>{
         return new Promise( async (resolve, reject)=>{
             const sql =
-            ` SELECT * FROM ${database_api}.config;`
+            ` SELECT 
+            *,
+            CAST(c.caminho_fotos  AS CHAR(1000)  CHARACTER SET latin1) as caminho_fotos   
+            FROM ${database_api}.config as c;`
             await conn.query( sql, ( err, result )=>{
                 if(err){
                     reject(err)

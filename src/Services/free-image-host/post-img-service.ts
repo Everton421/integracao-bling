@@ -3,6 +3,7 @@ import * as fs from 'fs/promises';
 import path from "path";
 import { constants } from 'fs';
 import { ProdutoRepository } from '../../dataAcess/produto-repository/produto-repository';
+import { ApiConfigRepository } from '../../dataAcess/api-config-repository/api-config-repository';
 
 type resultImg =  { link:string }
 export class PostFreeImgHost {
@@ -69,23 +70,24 @@ export class PostFreeImgHost {
                 //  return;
             }
 
-
     }
 
      async postFoto( data:any ){
     
         const produto = new ProdutoRepository();
     
-        const caminhoImg:any = await produto.buscaCaminhoFotos();
         const fotosProduto:any = await produto.buscaFotos(data.CODIGO);
         let links =[];
-    
+        const apiConfig = new ApiConfigRepository();
+        const config = await apiConfig.buscaConfig();
+
         if( fotosProduto.length > 0 ){
-           
+            const caminho = config[0].caminho_fotos;
+
            for( const foto of fotosProduto ){
                try{
                 
-                const linkFoto =  await this.postFreeImgHost(caminhoImg[0].FOTOS, foto.FOTO.normalize('NFC') )
+                const linkFoto =  await this.postFreeImgHost(caminho, foto.FOTO.normalize('NFC') )
                 if(linkFoto){
                  links.push({link: linkFoto} );
                 }
