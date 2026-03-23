@@ -31,7 +31,7 @@ export class ApiConfigRepository{
                     const sql =
                     ` SELECT 
                     c.*,
-                    AST(c.caminho_fotos  AS CHAR(1000)  CHARACTER SET latin1) as caminho_fotos   
+                    CAST(c.caminho_fotos  AS CHAR(1000)  CHARACTER SET latin1) as caminho_fotos   
                      FROM ${database_api}.config as c;`
                     await conn.query( sql, ( err, result )=>{
                         if(err){
@@ -98,6 +98,10 @@ export class ApiConfigRepository{
                if( json.setor){
                 conditions.push(' setor = ? ')
                 values.push(Number(json.setor))
+            }
+            if( json.caminho_fotos){
+                conditions.push(' caminho_fotos = ? ')
+                values.push(json.caminho_fotos);
             }
 
             let finalSql= '';
