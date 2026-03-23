@@ -3,10 +3,10 @@ require('dotenv').config();
 import mysql from 'mysql';
 
 /**----------------------------------------------------------------------- */
-        const hostname = process.env.HOST ;
-        const portdb = process.env.PORT_DB;
-        const username = process.env.USER;
-        const dbpassword = process.env.PASSWORD;
+        const hostname = process.env.DB_HOST ;
+        const portdb = process.env.DB_PORT;
+        const username = process.env.DB_USER;
+        const dbpassword = process.env.DB_PASSWORD;
 
         let port:any | undefined;
 
