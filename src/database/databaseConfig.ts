@@ -1,5 +1,5 @@
-import { parse } from 'dotenv';
- // import 'dotenv/config';
+
+require('dotenv').config();
 import mysql from 'mysql';
 
 /**----------------------------------------------------------------------- */
@@ -29,6 +29,8 @@ if(portdb !== undefined){
             port: port,
             password: dbpassword,
         })
+        console.log("Usuario: ",username)
+        console.log("Senha: ",dbpassword)
 
 /**----------------------------------------------------------------------- */
 
@@ -55,9 +57,6 @@ if(portdb !== undefined){
             database:db_api
         })
 
-        console.log(userApi)
-        console.log(senhaApi)
-        console.log(db_api)
 
 
 
