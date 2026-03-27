@@ -16,6 +16,7 @@ export interface cad_orca{
     HORA_INICIO:any,
     VENDEDOR:number,
     CONTATO:string,
+    SIT_SEPAR: 'I' | 'N' | 'P',
     OBSERVACOES:string,
     OBSERVACOES2:string,
     TIPO:number,

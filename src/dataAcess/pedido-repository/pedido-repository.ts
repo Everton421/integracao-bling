@@ -16,33 +16,34 @@ export class PedidoRepository{
 	 * @param codigoPedido codigo do pedido
 	 * @returns 
 	 */
-	async cadastraProdutosDoPedido(produtos:any[]  , codigoPedido:any ){
+	async cadastraProdutosDoPedido(produtos:any[]  , codigoPedido:any , frete:number , total_produtos:number){
 		return new Promise( async (resolve, reject )=>{
-			let i=1;
-			for(const prod of produtos){
-				const prodMapper = this.mapper.proOrcaMapper(prod,codigoPedido , i );
+				const prodMapper = await  this.mapper.proOrcaMapper(produtos,codigoPedido, frete, total_produtos  );
+			 
+			for(const prod of prodMapper){
 			 const sql = 
 			 ` INSERT INTO ${db_vendas}.pro_orca  SET
 				orcamento = '${codigoPedido}',
-				sequencia = '${ prodMapper.SEQUENCIA}',
-				produto = '${prodMapper.PRODUTO}',
-				grade = '${prodMapper.GRADE}',
-				padronizado ='${prodMapper.PADRONIZADO}',
-				complemento = '${prodMapper.COMPLEMENTO}',
-				unidade = '${prodMapper.UNIDADE}',   
-				item_unid = '${prodMapper.ITEM_UNID}',
-				just_ipi = '${prodMapper.JUST_IPI}',
-				just_icms = '${prodMapper.JUST_ICMS}',
-				just_subst = '${prodMapper.JUST_SUBST}',
-				quantidade = '${prodMapper.QUANTIDADE}',
-				unitario ='${prodMapper.UNITARIO}',
-				tabela = '${prodMapper.UNITARIO}',
-				preco_tabela = '${prodMapper.UNITARIO}',
-				CUSTO_MEDIO = '${prodMapper.CUSTO_MEDIO}',
-				ULT_CUSTO = '${prodMapper.ULT_CUSTO}',
-				FRETE = '${prodMapper.FRETE}',
-				ipi = '${prodMapper.IPI}',
-				desconto = '${prodMapper.DESCONTO}'
+				sequencia = '${ prod.SEQUENCIA}',
+				produto = '${prod.PRODUTO}',
+				grade = '${prod.GRADE}',
+				padronizado ='${prod.PADRONIZADO}',
+				complemento = '${prod.COMPLEMENTO}',
+				unidade = '${prod.UNIDADE}',   
+				item_unid = '${prod.ITEM_UNID}',
+				just_ipi = '${prod.JUST_IPI}',
+				just_icms = '${prod.JUST_ICMS}',
+				just_subst = '${prod.JUST_SUBST}',
+				quantidade = '${prod.QUANTIDADE}',
+				QTDE_SEPARADA = '${prod.QTDE_SEPARADA}',
+				unitario ='${prod.UNITARIO}',
+				tabela = '${prod.UNITARIO}',
+				preco_tabela = '${prod.UNITARIO}',
+				CUSTO_MEDIO = '${prod.CUSTO_MEDIO}',
+				ULT_CUSTO = '${prod.ULT_CUSTO}',
+				FRETE = '${prod.FRETE}',
+				ipi = '${prod.IPI}',
+				desconto = '${prod.DESCONTO}'
 			`;
 
 			  await conn.query( sql, (error, resultado)=>{
@@ -54,10 +55,7 @@ export class PedidoRepository{
 				   }
 				})
 
-				if(i === produtos.length){
-					return;
-				}
-				i++;
+			 
 
 			}
 
@@ -113,7 +111,7 @@ async cadastrarPedido( pedido: any , cliente:number, vendedor:number){
 	itens
 	} = pedido;
  
- 	const cad_orca = this.mapper.cadOrcaMapper(pedido, cliente, vendedor, parcelas.length ) 
+ 	const cad_orca =await this.mapper.cadOrcaMapper(pedido, cliente, vendedor, parcelas.length ) 
 
 	let totalProdutos = 0; // Inicializando a variável totalProdutos
 
@@ -126,7 +124,7 @@ let codigoPedido: any;
 	return new Promise( async (resolve, reject )=>{
 			const sql = 
 			` 
-			INSERT INTO ${db_vendas}.cad_orca (status,  cliente, total_produtos, desc_prod ,total_geral, data_pedido, valor_frete, situacao, data_cadastro, hora_cadastro, data_inicio, hora_inicio, vendedor, contato, observacoes, observacoes2, tipo,  NF_ENT_OS, RECEPTOR, VAL_PROD_MANIP, PERC_PROD_MANIP, 
+			INSERT INTO ${db_vendas}.cad_orca (status,  cliente, total_produtos, desc_prod ,total_geral, data_pedido, valor_frete, situacao, SIT_SEPAR,data_cadastro, hora_cadastro, data_inicio, hora_inicio, vendedor, contato, observacoes, observacoes2, tipo,  NF_ENT_OS, RECEPTOR, VAL_PROD_MANIP, PERC_PROD_MANIP, 
 				PERC_SERV_MANIP, REVISAO_COMPLETA, DESTACAR, TABELA, QTDE_PARCELAS, ALIQ_ISSQN, 
 				OUTRAS_DESPESAS, PESO_LIQUIDO, BASE_ICMS_UF_DEST, FORMA_PAGAMENTO)
 				VALUES (
@@ -138,6 +136,7 @@ let codigoPedido: any;
 					'${cad_orca.DATA_PEDIDO}',
 					'${cad_orca.VALOR_FRETE}',
 					'${cad_orca.SITUACAO}',
+					'${cad_orca.SIT_SEPAR}',
 					'${cad_orca.DATA_CADASTRO}',
 					'${cad_orca.HORA_CADASTRO}',
 					'${cad_orca.DATA_INICIO}',
@@ -182,7 +181,7 @@ let codigoPedido: any;
                              }
 						let resultProdutos;
 				try{
-					resultProdutos =	await this.cadastraProdutosDoPedido( itens ,codigoPedido )
+					resultProdutos =	await this.cadastraProdutosDoPedido( itens ,codigoPedido, cad_orca.VALOR_FRETE, cad_orca.TOTAL_PRODUTOS  )
 				}catch(err){
 					console.log(err)
 					return

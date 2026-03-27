@@ -61,15 +61,18 @@ export class SyncORders{
             await this.delay(1000)   
                   console.log(` Processando pedido ${idPedidoBling}...  `)
                     const response  = await this.api.config.get(`/pedidos/vendas/${idPedidoBling}`);
+
                     const pedidoResponse = response.data.data;
-                
-                        const responseValidacao:any  = await this.pedidoApiRepository.validaPedido(pedidoResponse.id);
+
+                    const responseValidacao:any  = await this.pedidoApiRepository.validaPedido(pedidoResponse.id);
                             if ( responseValidacao.length > 0 ){
                                 const codigPedidoCadastrado = responseValidacao[0].codigo_sistema;
                                 console.log(`Pedido já cadastrado. ID Bling: ${idPedidoBling}, ID Interno: ${codigPedidoCadastrado}`);
                                 continue; 
                              }else{
                                 console.log(`resgistrando pedido ${idPedidoBling}...` )
+            await this.delay(1000)   
+
                                 await this.pedidoRepository.cadastrarPedido( pedidoResponse, codigoClientErp, vendedor)
                                 console.log(`Pedido ID Bling: ${idPedidoBling} cadastrado com sucesso!`);
                              }

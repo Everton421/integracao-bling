@@ -329,5 +329,18 @@ export class  SyncProduct{
             return  { resultados: resultadosIntegracao.toString()}   
        }
   
+       async getProduct (){
+            const  api = new ConfigApi();
+               await  api.configurarApi();
+               const codigo = 'kit teste'
+                try{
+
+                        const arrLoja =   await api.config.get(`/canais-venda/205990088`);
+                            console.log(arrLoja.data);
+                        }catch(e:any){ console.log(" err ",e.response)}
+
+       }
+
+
     }
      

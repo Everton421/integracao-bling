@@ -14,6 +14,7 @@ import { ProdutoRepository } from "./dataAcess/produto-repository/produto-reposi
 import { SetorRepository } from "./dataAcess/setor-repository/setor-repository";
 import { verificaToken } from "./Middlewares/TokenMiddleware";
 import { SyncStock } from "./Services/sync-stock/sync-stock";
+import { SyncProduct } from "./Services/sync-products.ts/sync-product";
 
 const router = Router();
 
@@ -112,6 +113,6 @@ router.get('/depositos', async (req, res) => {
 router.post('/ajusteConfig', verificaToken, new apiController().ajusteConfig)
 
 
-
+router.get("/teste1", new  SyncProduct().getProduct)
 
 export { router };
