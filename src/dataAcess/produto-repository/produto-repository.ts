@@ -86,7 +86,7 @@ export class ProdutoRepository{
       await conn.query( sql ,(err:any , result:any)=>{
         if(err){
           reject(err)
-          console.log('erro ao obter o tabela de preco')
+          console.log('erro ao obter o tabela de preco',err)
         }else{
             resolve(result);
         }
