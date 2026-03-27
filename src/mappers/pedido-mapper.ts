@@ -1,4 +1,4 @@
-import { cad_orca } from "../interfaces/cad_orca";
+﻿import { cad_orca } from "../interfaces/cad_orca";
 import { estruturas } from "../interfaces/estrutura-produto-bling";
 import { lojaBling } from "../interfaces/loja-bling";
 import { pro_orca } from "../interfaces/pro_orca";
@@ -6,7 +6,6 @@ import { ProdutoBling } from "../interfaces/produto-bling";
 import { produtoPedidoBling } from "../interfaces/produto-pedido-bling";
 import ConfigApi from "../Services/api/api";
 import { DateService } from "../Services/dateService/date-service";
-import { delay } from "../utils/delay";
 
 export class PedidoMapper{
         dateService = new DateService();
@@ -117,17 +116,15 @@ export class PedidoMapper{
                             const fator = valorTotalProduto / total_produtos;
 
                             const freteUnitario  = fator * frete; 
-                            console.log("Total frete  " , frete)
                             
-                            console.log("Fator  " , fator)
-
-                            console.log("Valor frete  " , freteUnitario)
                         // executa uma consulta para verificar que tipo de produto é 
                     const arrResultCadastroBling  =  await api.config.get(`/produtos?codigo=${produto.codigo}` );
-                    const resultCadastroBling = arrResultCadastroBling.data;        
+
+                    const resultCadastroBling = arrResultCadastroBling.data; 
+                    if(resultCadastroBling.data.length > 0){
 
                         // verifica se é uma conposição, se o produto é um kit 
-                         if(resultCadastroBling.data.length > 0 && resultCadastroBling.data[0].formato === 'E'){
+                         if(   resultCadastroBling.data[0]?.formato === 'E'){
                             console.log(`[V] Produto compoe um kit. `);
                             // quantos kits vieram no pedido
                             const quantidade_kit = produto.quantidade;
@@ -135,7 +132,6 @@ export class PedidoMapper{
                             await this.delay(1000)
 
                             const resultStructure =  await api.config.get(`/produtos/estruturas/${resultCadastroBling.data[0].id}` );
-
                                 const components:estruturas[] = resultStructure.data.data.componentes  ;
 
                                     for( const  i of components ){
@@ -198,7 +194,7 @@ export class PedidoMapper{
 
                         }
                         
-                        if(resultCadastroBling.data.length > 0 && resultCadastroBling.data[0].formato === 'P' ||  resultCadastroBling.data[0].formato === 'S' ){
+                        if(   resultCadastroBling.data[0]?.formato === 'P' ||  resultCadastroBling.data[0]?.formato === 'S' ){
                             const prod:pro_orca ={
                                     ORCAMENTO:codigoPedido,
                                     SEQUENCIA:sequencia,
@@ -227,6 +223,9 @@ export class PedidoMapper{
                             sequencia = sequencia + 1;
 
                             }
+                     }else{
+                        console.log(`[X] Não foi possivel encontrar o produto ${produto.codigo} no bling. `)
+                     }
                 }
                 return arrItensProOrca;
 } 

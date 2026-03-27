@@ -335,8 +335,17 @@ export class  SyncProduct{
                const codigo = 'kit teste'
                 try{
 
-                        const arrLoja =   await api.config.get(`/canais-venda/205990088`);
-                            console.log(arrLoja.data);
+                                     // executa uma consulta para verificar que tipo de produto é 
+                    const arrResultCadastroBling  =  await api.config.get(`/produtos?codigo=NDI00225` );
+
+                    const resultCadastroBling = arrResultCadastroBling.data; 
+
+                            console.log(resultCadastroBling.data);
+                        // verifica se é uma conposição, se o produto é um kit 
+                         if(resultCadastroBling.data.length > 0 && resultCadastroBling.data[0].formato === 'E'){
+                        }
+                        //const arrLoja =   await api.config.get(`/canais-venda/205990088`);
+                          //  console.log(arrLoja.data);
                         }catch(e:any){ console.log(" err ",e.response)}
 
        }
