@@ -30,7 +30,7 @@ export class PedidoMapper{
                             console.log(resultArrLoja.data);
                             tipoLoja =  loja.data.tipo.toLowerCase(); 
 
-                        }catch(e:any){ console.log(" err ",e.response.data)
+                        }catch(e:any){ console.log(" err ",e  )
 
                         }
 
