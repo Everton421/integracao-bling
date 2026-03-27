@@ -25,7 +25,7 @@ export class PedidoMapper{
                       const lojaId = pedido.loja.id;
                         try{
 
-                        const resultArrLoja =   await api.config.get(`/canais-venda`);
+                        const resultArrLoja =   await api.config.get(`/canais-venda/${lojaId}`);
                             const loja = resultArrLoja.data  as lojaBling 
                             console.log(resultArrLoja.data);
                             tipoLoja =  loja.data.tipo.toLowerCase(); 
