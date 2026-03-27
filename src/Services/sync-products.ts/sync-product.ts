@@ -29,11 +29,9 @@ export class  SyncProduct{
          
          
         private delay(ms: number) {
-         console.log(`Aguardando ${ms / 1000} segundos...`);
-            return new Promise(resolve => setTimeout(resolve, ms));
-       }  
- 
-  
+        console.log(`Aguardando ${ms / 1000} segundos para atualizar...`);
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     /**
      *  verifica se o produto existe no bling, consulta feita atravez do codigo do sistema, caso exista é feito o vinculo do produto
@@ -329,24 +327,48 @@ export class  SyncProduct{
             return  { resultados: resultadosIntegracao.toString()}   
        }
   
+   
+
        async getProduct (){
+        
+      async function delay(ms: number) {
+        console.log(`Aguardando ${ms / 1000} segundos para atualizar...`);
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
             const  api = new ConfigApi();
                await  api.configurarApi();
                const codigo = 'kit teste'
                 try{
-
-                                     // executa uma consulta para verificar que tipo de produto é 
-                    const arrResultCadastroBling  =  await api.config.get(`/produtos?codigo=NDI00225` );
-
-                    const resultCadastroBling = arrResultCadastroBling.data; 
-
-                            console.log(resultCadastroBling.data);
-                        // verifica se é uma conposição, se o produto é um kit 
-                         if(resultCadastroBling.data.length > 0 && resultCadastroBling.data[0].formato === 'E'){
+                    let dadosPedidos;
+                    try{
+                            dadosPedidos = await  api.config.get('/pedidos/vendas', {
+                                params:{
+                                //  pagina: pagina,
+                                // limite:limite,
+                                    dataAlteracaoInicial: "2026-03-27 14:16:00"
+                                }
+                            });
+                        }catch(err) { 
+                                //throw err
+                                    console.log(` Erro ao buscar pedidos do bling`, err)
                         }
-                        //const arrLoja =   await api.config.get(`/canais-venda/205990088`);
-                          //  console.log(arrLoja.data);
-                        }catch(e:any){ console.log(" err ",e.response)}
+
+            const arr = dadosPedidos.data.data
+
+                if(!arr || arr.length === 0 )   {
+                    console.log(" Não há mais pedidos a serem importados!")
+                }
+
+                        for( const data of arr ){
+                              let idPedidoBling = data.id; 
+                        await   delay(1000); 
+
+                    const response  = await  api.config.get(`/pedidos/vendas/${idPedidoBling}`);
+                            console.log(response.data)
+
+                        }
+                        }catch(e:any){ console.log(" err ",e)}
 
        }
 

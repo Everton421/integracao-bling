@@ -55,11 +55,20 @@ export  class Job{
       
         if (config.importar_pedidos === 1) {
           await this.delay(8000);
-      
+          let inExec = false;
+
           cron.schedule(tempoPedido, async () => {
+            if(inExec) return console.log("[X] busca de pedidos ainda em execução...");
+          try{
+            inExec= true;
             await this.syncOrders.buscaPedidosBling(config.vendedor);
-          await this.delay(2000);
+            await this.delay(2000);
             await this.syncOrders.updateBling();
+          }catch(e){
+
+          }finally{
+            inExec = false
+          }
 
           });
         }

@@ -31,7 +31,8 @@ export class SyncORders{
                 dadosPedidos = await this.api.config.get('/pedidos/vendas', {
                     params:{
                         pagina: pagina,
-                        limite:limite
+                        limite:limite,
+                        dataAlteracaoInicial: "2026-03-27 17:16:00"
                     }
                 });
             }catch(err) { 
@@ -41,6 +42,7 @@ export class SyncORders{
             }
 
             const arr = dadosPedidos.data.data
+                    console.log(arr)
 
                 if(!arr || arr.length === 0 )   {
                     console.log(" Não há mais pedidos a serem importados!")
@@ -63,7 +65,6 @@ export class SyncORders{
                     const response  = await this.api.config.get(`/pedidos/vendas/${idPedidoBling}`);
 
                     const pedidoResponse = response.data.data;
-
                     const responseValidacao:any  = await this.pedidoApiRepository.validaPedido(pedidoResponse.id);
                             if ( responseValidacao.length > 0 ){
                                 const codigPedidoCadastrado = responseValidacao[0].codigo_sistema;
