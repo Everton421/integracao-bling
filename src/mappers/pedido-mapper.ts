@@ -18,10 +18,10 @@ export class PedidoMapper{
              const hora_cadastro = this.dateService.obterHoraAtual(); 
                  
              let statusPedido =0;
+                        let tipoLoja = '';
 
                    if(  pedido.loja && pedido.loja.id ){
 
-                        let tipoLoja = '';
                       const lojaId = pedido.loja.id;
                         try{
 
@@ -72,7 +72,7 @@ export class PedidoMapper{
                     DATA_INICIO:data_cadastro,
                     HORA_INICIO:hora_cadastro,
                     VENDEDOR: vendedor,
-                    CONTATO:'',
+                    CONTATO: tipoLoja || "",
                     OBSERVACOES:'',
                     OBSERVACOES2:'',
                     TIPO: 1,
