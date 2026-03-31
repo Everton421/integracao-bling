@@ -157,7 +157,7 @@ export class SyncStock{
                         data_estoque = resultSaldo[0].DATA_RECAD
                     } else {
                         saldoReal = 0;
-                        data_estoque = '0000-00-00 00:00:00'
+                        data_estoque =  this.dateService.obterDataHoraAtual()
                     }
                     //console.log( new Date(data_estoque) ,' > ', new Date(data.data_estoque))
 
