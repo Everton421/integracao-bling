@@ -15,6 +15,7 @@ import { SetorRepository } from "./dataAcess/setor-repository/setor-repository";
 import { verificaToken } from "./Middlewares/TokenMiddleware";
 import { SyncStock } from "./Services/sync-stock/sync-stock";
 import { SyncProduct } from "./Services/sync-products.ts/sync-product";
+import { testeNf } from "./__test__/teste-nf";
 
 const router = Router();
 
@@ -62,7 +63,8 @@ router.get('/configuracoes', async (req, res) => {
   let objProdutos = new ProdutoRepository();
   let tabelasDePreco = await objProdutos.buscaTabelaDePreco();
   let setores = await setorRepository.buscaSetor()
-  res.render('configuracoes', { dados: dadosConfig[0], tabelas: tabelasDePreco, setores: setores })
+  const authorizationUrlApiBling = "https://intersig.com.br";
+  res.render('configuracoes', { dados: dadosConfig[0], tabelas: tabelasDePreco, setores: setores , authorization: authorizationUrlApiBling})
 
 })
 
@@ -112,6 +114,9 @@ router.get('/depositos', async (req, res) => {
 })
 router.post('/ajusteConfig', verificaToken, new apiController().ajusteConfig)
 
+router.get("/testeNf",async  ( req, res )=>{
+    await testeNf();
+})
 
 router.get("/teste1", new  SyncProduct().getProduct)
 

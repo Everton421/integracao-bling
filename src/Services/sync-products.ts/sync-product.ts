@@ -9,6 +9,7 @@ import { SyncPrice } from "../sync-price/sync-price";
 import { SyncStock } from "../sync-stock/sync-stock";
 import { ApiConfigRepository } from "../../dataAcess/api-config-repository/api-config-repository";
 import { CategoriaApiRepository } from "../../dataAcess/api-categoria-repository/categoria-api-repository";
+import { SyncCategory } from "../sync-category/sync-category";
 
 type dados = {
     codigo:number,
@@ -227,13 +228,14 @@ export class  SyncProduct{
     }
 
 
-    async postAndPutProd(codigoStr: number, validDateUpdate: boolean ){
+    async postOrPutProductBling(codigoStr: number, validDateUpdate: boolean ){
 
             const resultadosIntegracao: any[] = [];
             
                         // configurações para envio das informações
                     let objConfig  = new ApiConfigRepository();
                     let dadosConfig = await objConfig.buscaConfig();
+                    const syncCategory = new SyncCategory();
 
                     // contem o valor do parametro de envio de estoque ( 0: nao enviar estoque, 1: enviar o estoque) 
                     const envEstoque = Number(dadosConfig[0].enviar_estoque);
@@ -268,18 +270,19 @@ export class  SyncProduct{
                     // extrai o produto do array 
                     const prodSelected = arrProdSelected[0];
 
-                        // verifica a categoria do produto
-                    const arrCategoria = await this.categoriaRepository.buscaCategoriaApi(prodSelected.GRUPO);
-                    if (!arrCategoria || arrCategoria.length === 0) {
-                        resultadoOperacao = { codigo: codigoSelecionado, success: false, msg: `Categoria código: ${prodSelected.GRUPO}  do produto  ${codigoSelecionado}  ainda não foi enviada para o Bling.   ` };
-                        console.log(resultadoOperacao.msg);
-                        resultadosIntegracao.push(resultadoOperacao.msg);
-                        return resultadosIntegracao;
+                    // verifica a categoria do produto
+                    let categoryId = 0;
+                    const resultVerifyCategoryBling  = await syncCategory.verifyCategory(prodSelected.GRUPO);
+                        if( !resultVerifyCategoryBling.success ){
+                           resultadosIntegracao.push(resultVerifyCategoryBling.message);
+                          return resultadosIntegracao;
+                        }else{
+                            categoryId = resultVerifyCategoryBling.data?.id_bling || 0;
+                        }
                         
-                    }
 
                     // processa o produto retornando os dados do produto de acordo com o que a api do bling esta esperando.
-                    const produtoBling = await this.produtoMapper.postProdutoMapper(prodSelected, envPreco,tabela_preco );
+                    const produtoBling = await this.produtoMapper.postProdutoMapper(prodSelected, categoryId, envPreco,tabela_preco );
                     
                     await this.delay(1000);  
                     // se o produto selecionado for encontrado, faz a atualização.

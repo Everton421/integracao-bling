@@ -12,11 +12,12 @@ export class ProdutoMapper {
   /**
    * 
    * @param produto 
-   * @param  postPreco parametro  de envio de preco ( 0: nao enviar preco, 1: enviar o preco)
+   * @param  sendPrice parametro  de envio de preco ( 0: nao enviar preco, 1: enviar o preco) 
+   * @param categoryIdBling id da categoria no bling
    * @param tabela codigo da tabela de preço a ser enviada 
    * @returns 
    */
-  async postProdutoMapper(produto: IProductSystem, postPreco: number, tabela?: number): Promise<IProdutoBlingSemPreco> {
+  async postProdutoMapper(produto: IProductSystem, sendPrice: number, categoryIdBling: number, tabela?: number): Promise<IProdutoBlingSemPreco> {
     return new Promise(async (resolve, reject) => {
 
       const produtoRepository = new ProdutoRepository();
@@ -24,7 +25,7 @@ export class ProdutoMapper {
       const freeImgHost = new PostFreeImgHost();
       let preco: number = 0;
 
-      if (postPreco === 1) {
+      if (sendPrice === 1) {
         const arrPreco = await produtoRepository.buscaPreco(produto.CODIGO, tabela)
         preco = arrPreco[0].PRECO;
       }
@@ -35,9 +36,7 @@ export class ProdutoMapper {
       const cod_cest = arrNcm[0].COD_CEST
       const arrUnidades = await produtoRepository.buscaUnidades(produto.CODIGO);
       const unidade = arrUnidades[0].SIGLA
-      const arrCategoria = await categoriaRepository.buscaCategoriaApi(produto.GRUPO)
-
-      let categoria = arrCategoria[0].Id_bling;
+ 
 
       //envio de imagen
       //let links = await imgController.postFoto( produto ) ;
@@ -66,7 +65,7 @@ export class ProdutoMapper {
           }
         },
         categoria: {
-          id: categoria
+          id: categoryIdBling
         }
       };
       resolve(post)
