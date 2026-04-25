@@ -16,6 +16,7 @@ import { verificaToken } from "./Middlewares/TokenMiddleware";
 import { SyncStock } from "./Services/sync-stock/sync-stock";
 import { SyncProduct } from "./Services/sync-products.ts/sync-product";
 import { testeNf } from "./__test__/teste-nf";
+import { testeNaturezaOperacao } from "./__test__/teste-natureza-operacao";
 
 const router = Router();
 
@@ -116,6 +117,9 @@ router.post('/ajusteConfig', verificaToken, new apiController().ajusteConfig)
 
 router.get("/testeNf",async  ( req, res )=>{
     await testeNf();
+})
+router.get("/testeNaturezaOperacao",async  ( req, res )=>{
+    await testeNaturezaOperacao();
 })
 
 router.get("/teste1", new  SyncProduct().getProduct)

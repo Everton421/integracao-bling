@@ -22,7 +22,7 @@ type naturezaOperacaoBling =
      ]
     }
 
-export class SyncNaturezaOperacao{
+export class SyncWiretappingOperations{
         private api = new ConfigApi();
 
   async getWiretappingOperations() {
@@ -31,8 +31,8 @@ export class SyncNaturezaOperacao{
  
                 try{
 
-                   const resultWiretappingOperations = await   this.api.config.get('/naturezas-operacoes') as resultRequestWiretappingOperations;
-                   return resultWiretappingOperations;
+                   const resultWiretappingOperations = await   this.api.config.get('/naturezas-operacoes') ;
+                   return resultWiretappingOperations.data as resultRequestWiretappingOperations;
 
                 }catch(e){
                     if(e instanceof AxiosError){

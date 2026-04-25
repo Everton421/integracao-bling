@@ -148,7 +148,7 @@ export class NfMapper {
             dataOperacao: this.formatarData(dadosNota.DATA_EMISSAO),
             contato: this.mapContato(cliente, dadosNota),
             naturezaOperacao: {
-                id: this.mapCfopToNatureza(dadosNota.CFOP)
+                id:  15110323517 
             },
             loja: {
                 id: dadosNota.FILIAL,
@@ -178,14 +178,7 @@ export class NfMapper {
         return "01";
     }
 
-    private mapCfopToNatureza(cfop: string): number {
-        if (!cfop) return 1;
-        const prefix = cfop.charAt(0);
-        if (prefix === '5') return 1;
-        if (prefix === '6') return 2;
-        return 1;
-    }
-
+ 
     private formatarData(data: string | Date): string {
         if (!data) return new Date().toISOString().slice(0, 19).replace('T', ' ');
         const d = new Date(data);
